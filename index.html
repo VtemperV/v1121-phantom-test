@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V1121 Phantom Test</title>
+  <style>
+    body {
+      background: #08111f;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 18px;
+    }
+    .card {
+      background: #141f35;
+      border: 1px solid #385475;
+      border-radius: 18px;
+      padding: 22px;
+      margin-top: 20px;
+    }
+    button {
+      background: #a99af7;
+      color: #101020;
+      border: 0;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 12px;
+    }
+    .warning { color: #ffd28a; }
+    #status { overflow-wrap: anywhere; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <h1>👻 V1121 BOT</h1>
+  <p>Phantom walletverbinding testen</p>
+
+  <div class="card">
+    <h2>🔒 Veilige test</h2>
+    <p class="warning">
+      Alleen openbare walletgegevens.
+      Geen aankopen, verkopen of transacties.
+    </p>
+
+    <button onclick="checkPhantom()">
+      🔍 CONTROLEER PHANTOM
+    </button>
+
+    <button onclick="connectPhantom()">
+      👻 VERBIND PHANTOM
+    </button>
+
+    <button onclick="disconnectLocal()">
+      VERBREEK LOKALE SESSIE
+    </button>
+
+    <p id="status">Nog niet gecontroleerd.</p>
+  </div>
+
+  <script>
+    let provider = null;
+
+    function show(message) {
+      document.getElementById("status").textContent = message;
+    }
+
+    function findProvider() {
+      const p = window.phantom?.solana;
+      return p && p.isPhantom ? p : null;
+    }
+
+    function checkPhantom() {
+      provider = findProvider();
+
+      if (provider) {
+        show("Phantom-provider gevonden. Nog niet verbonden.");
+      } else {
+        show(
+          "Geen Phantom-provider gevonden. " +
+          "Open deze HTTPS-pagina via de browser in Phantom."
+        );
+      }
+    }
+
+    async function connectPhantom() {
+      provider = findProvider();
+
+      if (!provider) {
+        show("Geen Phantom-provider beschikbaar.");
+        return;
+      }
+
+      try {
+        const response = await provider.connect();
+        show(
+          "Phantom verbonden. Openbaar adres: " +
+          response.publicKey.toString() +
+          ". Geen handelsrechten."
+        );
+      } catch (error) {
+        show("Verbinding niet voltooid of geweigerd.");
+      }
+    }
+
+    async function disconnectLocal() {
+      try {
+        if (provider) await provider.disconnect();
+      } catch (error) {}
+      provider = null;
+      show("Lokale sessie verbroken.");
+    }
+  </script>
+</body>
+</html>
